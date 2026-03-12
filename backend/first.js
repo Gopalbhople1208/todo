@@ -1,7 +1,6 @@
 import express from "express";
-// first.js
-import { connection } from "./dbconfig.js"; // remove collectionName
-//import { connection, collectionName } from "./dbconfig.js";
+
+import { connection, collectionName } from "./dbconfig.js";
 import cors from "cors";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
@@ -13,19 +12,74 @@ app.use(express.json());
 
 app.use(cors());
 
-app.post("/add-Task", async (req, resp) => {
-  const db = await connection();
-  const collection = db.collection(collectionName);
 
-  const result = await collection.insertOne(req.body);
 
-  console.log(result);
+// --- Signup route ---
+app.post("/signup", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ success: false, message: "Email and password required" });
 
-  resp.send({
-    message: "Task inserted",
-    data: result,
-  });
+    const db = await connection();
+    const usersCollection = db.collection("users");
+
+    const existingUser = await usersCollection.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await usersCollection.insertOne({ name, email, password: hashedPassword, createdAt: new Date() });
+
+    const token = jwt.sign({ email, userId: result.insertedId }, "gopal", { expiresIn: "5d" });
+
+    return res.status(201).json({ success: true, message: "Signup done", token });
+  } catch (err) {
+    console.error("Signup error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 });
+
+
+
+// app.post("/add-Task", async (req, resp) => {
+//   const db = await connection();
+//   const collection = db.collection(collectionName);
+
+//   const result = await collection.insertOne(req.body);
+
+//   console.log(result);
+
+//   resp.send({
+//     message: "Task inserted",
+//     data: result,
+//   });
+// });
+
+app.post("/add-task", async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    if (!title || !description) {
+      return res.status(400).json({ success: false, message: "Title and description required" });
+    }
+
+    const db = await connection();
+    const collection = db.collection("tasks");
+
+    const result = await collection.insertOne({
+      title,
+      description,
+      createdAt: new Date(),
+    });
+
+    return res.status(201).json({ success: true, message: "Task added", data: result });
+  } catch (err) {
+    console.error("Add Task error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 
 app.get("/", async (req, resp) => {
   const db = await connection();
@@ -110,42 +164,42 @@ app.put("/updateTask/:id", async (req, resp) => {
 
 
 
- const saltRounds = 10;
+//  const saltRounds = 10;
 
 
- app.post("/signup", async (req, resp) => {
-   const userData = req.body;
+//  app.post("/signup", async (req, resp) => {
+//    const userData = req.body;
 
-   if (userData.email && userData.password) {
-         const db = await connection();
-         const collection = db.collection("users");
+//    if (userData.email && userData.password) {
+//          const db = await connection();
+//          const collection = db.collection("users");
 
-         const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+//          const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
 
-         const newUser = {
-           email: userData.email,
-           password: hashedPassword,
-         };
+//          const newUser = {
+//            email: userData.email,
+//            password: hashedPassword,
+//          };
 
-         const result = await collection.insertOne(newUser);
+//          const result = await collection.insertOne(newUser);
 
-         if (result) {
-           jwt.sign(  { email: newUser.email },"gopal", { expiresIn: "5d" }, (error, token) => {
-               resp.send({
-                 success: true,
-                 message: "Signup Done",
-                 token,
-               });
-             }
-           );
-         } else {
-           resp.send({
-             success: false,
-             message: "Signup not successful",
-                       });
-    }
-       }
-     });
+//          if (result) {
+//            jwt.sign(  { email: newUser.email },"gopal", { expiresIn: "5d" }, (error, token) => {
+//                resp.send({
+//                  success: true,
+//                  message: "Signup Done",
+//                  token,
+//                });
+//              }
+//            );
+//          } else {
+//            resp.send({
+//              success: false,
+//              message: "Signup not successful",
+//                        });
+//     }
+//        }
+//      });
 
 
 
