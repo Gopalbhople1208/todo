@@ -2,6 +2,7 @@ import express from "express";
 import { connection, collectionName } from "./dbconfig.js";
 import cors from 'cors';
 import {ObjectId} from 'mongodb';
+import jwt from 'jsonwebtoken'
 
 const app = express();
 
@@ -109,16 +110,27 @@ app.put("/updateTask/:id", async (req, resp) => {
 
 
 
+
+
+
+
+app.post("/signup",(req,resp)=>{
+
+  const userData = req.body;
+  console.log(userData);
+
+  jwt.sign(userData,'gopal',{expiresIn:'5d'},(error,token)=>{
+    console.log(token);
+  })
+
+  resp.send("API in program")
+  
+})
+
+
 // app.get("/login",(req,resp)=>{
 
-
-// });
-
-
-
-// app.get("/signup",(req,resp)=>{
-//   resp.render()
-// })
+//  });
 
 
 
