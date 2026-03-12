@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 
 function TaskList() {
 
@@ -41,6 +43,19 @@ function TaskList() {
   }
    
   };
+
+
+
+
+
+  
+
+
+
+  
+
+ 
+
        
     return(
     <div >
@@ -51,7 +66,7 @@ function TaskList() {
                 <th>Sr.No</th>
                  <th>Title</th>
                   <th>Description</th>
-                    <th>Delete</th>
+                    <th>Action</th>
                   
             
             </tr>
@@ -62,8 +77,38 @@ function TaskList() {
               <td>{index + 1}</td>
               <td>{item.title}</td>
               <td>{item.description}</td>
-              <td></td><td>
-  <button onClick={() => deleteTask(item._id)} className="delete-task">Delete</button>
+              <td>
+  <button
+    onClick={() => deleteTask(item._id)}
+    className="delete-task"
+    style={{
+      backgroundColor: "#ff4d4f",
+      color: "white",
+      margin: "5px",
+      padding: "6px 12px",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+       
+    }}
+  >
+    Delete
+  </button>
+ 
+  <Link
+    to={`/update/${item._id}`}  // navigate to UpdateTask page
+    style={{
+      backgroundColor: "#35b559",
+      color: "white",
+      margin: "5px",
+      padding: "6px 12px",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer"
+    }}
+  >
+    Update
+  </Link>
 </td>
             </tr>
           ))}
