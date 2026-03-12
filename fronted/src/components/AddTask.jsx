@@ -5,25 +5,35 @@ function AddTask() {
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
-    
-
   });
 
   const handAddTask = async () => {
-    console.log(taskData);
+    if (!taskData.title || !taskData.description) {
+      alert("Please fill in both fields!");
+      return;
+    }
 
-    let result = await fetch("http://localhost:3232/add-task", {
-      method: "POST",
-      body: JSON.stringify(taskData),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      let result = await fetch("http://localhost:3232/add-task", {
+        method: "POST",
+        body: JSON.stringify(taskData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    result = await result.json();
+      result = await result.json();
 
-    if (result) {
-      console.log("Add New Task");
+      if (result) {
+        alert("Task added successfully!"); // <-- show alert
+        console.log("Task added:", result);
+
+        // Clear input fields (refresh form)
+        setTaskData({ title: "", description: "" });
+      }
+    } catch (err) {
+      console.error("Failed to add task:", err);
+      alert("Failed to add task. Check console.");
     }
   };
 
@@ -37,6 +47,7 @@ function AddTask() {
         placeholder="Enter The Title"
         name="title"
         id="title"
+        value={taskData.title} // bind value
         onChange={(event) =>
           setTaskData({ ...taskData, title: event.target.value })
         }
@@ -49,6 +60,7 @@ function AddTask() {
         name="description"
         placeholder="Enter The Description"
         id="description"
+        value={taskData.description} // bind value
         onChange={(event) =>
           setTaskData({ ...taskData, description: event.target.value })
         }
