@@ -24,9 +24,9 @@ function Signup(){
             <br></br>
             <button 
             onClick={()=>console.log(userData)}
-           type="submit">Sign Up</button>
+           className="link" type="submit">Sign Up</button>
             <br></br>
-            <Link  className="link" to="/login">Login</Link>
+            <Link to="/login">Login</Link>
         </div>
     )
 }

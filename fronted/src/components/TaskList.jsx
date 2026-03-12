@@ -11,7 +11,7 @@ function TaskList() {
   }, []);
 
   const getListData = async () => {
-    let list = await fetch("http://localhost:3232/");
+    let list = await fetch("http://localhost:3232");
     list = await list.json();
 
     console.log(list);
