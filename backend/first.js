@@ -109,16 +109,16 @@ app.put("/updateTask/:id", async (req, resp) => {
 
 
 
-app.get("/login",(req,resp)=>{
+// app.get("/login",(req,resp)=>{
 
 
-});
+// });
 
 
 
-app.get("/signup",(req,resp)=>{
-  resp.render()
-})
+// app.get("/signup",(req,resp)=>{
+//   resp.render()
+// })
 
 
 
