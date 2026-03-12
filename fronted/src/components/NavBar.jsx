@@ -7,7 +7,7 @@ function NavBar(){
             <div className="logo">To do APP</div>
             <ul className="nav-links">
                  <li><Link to="/">List</Link></li>
-                 <li><Link to="/add">Add Task</Link></li>
+                 <li><Link to="/add-Task">Add Task</Link></li>
             </ul>
         </nav>
     );
