@@ -63,10 +63,12 @@ function TaskList() {
         <table border="1" cellPadding="5" >     
               <thead style={{ backgroundColor: "#ea457c" }}>
             <tr>
+                 
                 <th>Sr.No</th>
                  <th>Title</th>
                   <th>Description</th>
-                    <th>Action</th>
+                    <th>Delete</th>
+                    <th>Update</th>
                   
             
             </tr>
@@ -94,14 +96,15 @@ function TaskList() {
   >
     Delete
   </button>
- 
+ </td>
+ <td>
   <Link
     to={`/update/${item._id}`}  // navigate to UpdateTask page
     style={{
       backgroundColor: "#35b559",
       color: "white",
       margin: "5px",
-      padding: "6px 12px",
+      padding: "6px 20px",
       border: "none",
       borderRadius: "4px",
       cursor: "pointer"
