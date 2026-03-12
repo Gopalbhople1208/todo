@@ -1,5 +1,7 @@
 import express from "express";
-import { connection, collectionName } from "./dbconfig.js";
+// first.js
+import { connection } from "./dbconfig.js"; // remove collectionName
+//import { connection, collectionName } from "./dbconfig.js";
 import cors from "cors";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
@@ -108,42 +110,48 @@ app.put("/updateTask/:id", async (req, resp) => {
 
 
 
-const saltRounds = 10;
+ const saltRounds = 10;
 
 
-app.post("/signup", async (req, resp) => {
-  const userData = req.body;
+ app.post("/signup", async (req, resp) => {
+   const userData = req.body;
 
-  if (userData.email && userData.password) {
-    const db = await connection();
-    const collection = db.collection("users");
+   if (userData.email && userData.password) {
+         const db = await connection();
+         const collection = db.collection("users");
 
-    const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+         const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
 
-    const newUser = {
-      email: userData.email,
-      password: hashedPassword,
-    };
+         const newUser = {
+           email: userData.email,
+           password: hashedPassword,
+         };
 
-    const result = await collection.insertOne(newUser);
+         const result = await collection.insertOne(newUser);
 
-    if (result) {
-      jwt.sign(  { email: newUser.email },"gopal", { expiresIn: "5d" }, (error, token) => {
-          resp.send({
-            success: true,
-            message: "Signup Done",
-            token,
-          });
-        }
-      );
-    } else {
-      resp.send({
-        success: false,
-        message: "Signup not successful",
-      });
+         if (result) {
+           jwt.sign(  { email: newUser.email },"gopal", { expiresIn: "5d" }, (error, token) => {
+               resp.send({
+                 success: true,
+                 message: "Signup Done",
+                 token,
+               });
+             }
+           );
+         } else {
+           resp.send({
+             success: false,
+             message: "Signup not successful",
+                       });
     }
-  }
-});
+       }
+     });
+
+
+
+
+
+
 
 // app.get("/login",(req,resp)=>{
 
