@@ -107,6 +107,26 @@ app.put("/updateTask/:id", async (req, resp) => {
   }
 });
 
+
+
+app.get("/login",(req,resp)=>{
+
+
+});
+
+
+
+app.get("/signup",(req,resp)=>{
+  resp.render()
+})
+
+
+
+
 app.listen(3232, () => {
   console.log("Server running at http://localhost:3232");
 });
+
+
+
+
