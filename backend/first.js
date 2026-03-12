@@ -23,6 +23,7 @@ app.post("/add-Task", async (req, resp) => {
       data: result
     });
 
+  
 });
 
 
@@ -62,9 +63,49 @@ app.delete("/deleteTask/:id", async (req, resp) => {
   }
 });
 
-// app.get("/", (req, resp) => {
- 
-// });
+
+
+
+app.get("/task/:id", async (req, resp) => {
+  const db = await connection();
+  const collection = db.collection(collectionName);
+
+  const result = await collection.findOne({
+    _id: new ObjectId(req.params.id)
+  });
+
+  resp.send({
+    success: true,
+    data: result
+  });
+});
+
+
+
+app.put("/updateTask/:id", async (req, resp) => {
+  try {
+    const db = await connection();
+    const collection = db.collection(collectionName);
+    const id = req.params.id;
+
+    console.log("Updating task ID:", id);
+    console.log("Update data:", req.body);
+
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: req.body } // ← IMPORTANT
+    );
+
+    if (result.modifiedCount === 1) {
+      resp.send({ success: true, message: "Task updated successfully" });
+    } else {
+      resp.status(404).send({ success: false, message: "Task not found or data unchanged" });
+    }
+  } catch (err) {
+    console.error("Update error:", err);
+    resp.status(500).send({ success: false, message: "Update failed" });
+  }
+});
 
 app.listen(3232, () => {
   console.log("Server running at http://localhost:3232");
