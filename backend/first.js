@@ -8,8 +8,8 @@ app.use(express.json());
 
 app.use(cors());
 
-app.post("/add-task", async (req, resp) => {
-  try {
+app.post("/add-Task", async (req, resp) => {
+ 
     const db = await connection();
     const collection = db.collection(collectionName);
 
@@ -21,18 +21,30 @@ app.post("/add-task", async (req, resp) => {
       message: "Task inserted",
       data: result
     });
-  } catch (error) {
-    console.error(error);
-    resp.status(500).send({ error: "Failed to insert task" });
-  }
+
 });
 
-app.get("/", (req, resp) => {
-  resp.send({
+
+app.get("/", async (req, resp) => {
+ 
+    const db = await connection();
+    const collection = db.collection(collectionName);
+
+    const result = await collection.find().toArray();
+
+    console.log(result);
+
+   resp.send({
     message: "basic API",
-    success: true
+    success: true,
+    data:result
+ 
   });
 });
+
+// app.get("/", (req, resp) => {
+ 
+// });
 
 app.listen(3232, () => {
   console.log("Server running at http://localhost:3232");
