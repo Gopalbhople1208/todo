@@ -18,6 +18,29 @@ function TaskList() {
     }
    
   };
+
+
+
+
+   const deleteTask = async (id) => {
+    try{
+    let item = await fetch(`http://localhost:3232/deleteTask/${id}`, { method: "DELETE" });
+    item = await item.json();
+
+   
+    if(item.success){
+         console.log(item);
+         getListData();
+
+    }else{
+        alert(item.message);
+    }
+     } catch (err) {
+    console.error("Delete failed:", err);
+    alert("Delete failed, see console for details.");
+  }
+   
+  };
        
     return(
     <div >
@@ -28,14 +51,20 @@ function TaskList() {
                 <th>Sr.No</th>
                  <th>Title</th>
                   <th>Description</th>
+                    <th>Delete</th>
+                  
+            
             </tr>
         </thead>
-         <tbody style={{ backgroundColor: "#e845aa" }}>
+         <tbody >
           {taskData && taskData.map((item, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
               <td>{item.title}</td>
               <td>{item.description}</td>
+              <td></td><td>
+  <button onClick={() => deleteTask(item._id)} className="delete-task">Delete</button>
+</td>
             </tr>
           ))}
         </tbody>
