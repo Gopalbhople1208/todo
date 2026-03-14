@@ -99,7 +99,7 @@ function AddTask() {
     }
 
     try {
-      let result = await fetch("http://localhost:3232/add-task", {
+      let result = await fetch("/api/add-task", {
         method: "POST",
         body: JSON.stringify(taskData),
         headers: { "Content-Type": "application/json" },

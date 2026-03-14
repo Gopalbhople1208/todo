@@ -1,8 +1,29 @@
+// // import {Navigate} from "react-router-dom"
+
+// // function Protected({children}){
+
+// //     const isLogin = localStorage.getItem('login')  ;
+
+// //     if(!isLogin){
+// //         return <Navigate to="/login" replace />
+// //     }
+
+// //     return children
+// // }
+
+// // export default Protected;
+
+
+
+
+
+
+
 // import {Navigate} from "react-router-dom"
 
 // function Protected({children}){
 
-//     const isLogin = localStorage.getItem('login')  ;
+//     const isLogin = localStorage.getItem('login') || sessionStorage.getItem('login');
 
 //     if(!isLogin){
 //         return <Navigate to="/login" replace />
@@ -15,21 +36,16 @@
 
 
 
+import { Navigate } from "react-router-dom";
 
+function Protected({ children }) {
+  const isLogin = localStorage.getItem("login");
 
+  if (!isLogin) {
+    return <Navigate to="/login" replace />;
+  }
 
-
-import {Navigate} from "react-router-dom"
-
-function Protected({children}){
-
-    const isLogin = localStorage.getItem('login') || sessionStorage.getItem('login');
-
-    if(!isLogin){
-        return <Navigate to="/login" replace />
-    }
-
-    return children
+  return children;
 }
 
 export default Protected;

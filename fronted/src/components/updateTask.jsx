@@ -93,7 +93,7 @@ function UpdateTask() {
 
   const fetchTask = async () => {
     try {
-      const res = await fetch(`http://localhost:3232/task/${id}`);
+      const res = await fetch(`/api/task/${id}`);
       const data = await res.json();
       if (data.success) setTaskData(data.data); // pre-fill form
     } catch (err) {
@@ -103,7 +103,7 @@ function UpdateTask() {
 
   const updateTask = async () => {
     try {
-      const res = await fetch(`http://localhost:3232/updateTask/${id}`, {
+      const res = await fetch(`/api/updateTask/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
