@@ -5,12 +5,80 @@ import cors from "cors";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 app.use(express.json());
 
 app.use(cors());
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----login route---
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Basic validation
+    if (!email || !password)
+      return res.status(400).json({ success: false, message: "Email and password required" });
+
+    const db = await connection();
+    const usersCollection = db.collection("users");
+
+    // Find user by email
+    const user = await usersCollection.findOne({ email });
+    if (!user)
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+
+    // Compare password with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { email: user.email, userId: user._id },
+      process.env.JWT_SECRET || "defaultsecret",
+      { expiresIn: "5d" }
+    );
+
+    return res.status(200).json({ success: true, message: "Login successful", token });
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -30,7 +98,7 @@ app.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await usersCollection.insertOne({ name, email, password: hashedPassword, createdAt: new Date() });
+    const result = await usersCollection.insertOne({ name, email, password: hashedPassword });
 
     const token = jwt.sign({ email, userId: result.insertedId }, "gopal", { expiresIn: "5d" });
 
