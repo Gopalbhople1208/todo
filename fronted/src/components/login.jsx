@@ -19,7 +19,7 @@ const handLogin = async () => {
 
   console.log("user data sending.....",userData);
 
-  let response = await fetch('/api/login',{
+  let response = await fetch('http://localhost:3232/login',{
       method:"POST",
       headers:{
           'Content-Type':'application/json'
