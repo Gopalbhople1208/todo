@@ -1,11 +1,21 @@
 import {Link,useNavigate} from 'react-router-dom';
 import '../style/AddTask.css';
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 function Signup(){
     
         const [userData,setTaskData] = useState({ });
 
         const navigate = useNavigate();
+
+
+
+
+useEffect(()=>{
+    if(localStorage.getItem('login')){
+        navigate('/')
+    }
+})
+
 
 const handSignUp = async () => {
 
@@ -21,14 +31,20 @@ const handSignUp = async () => {
 
   let result = await response.json();
 
-  if(response.status === 201 && result.token){
+ if(result.success){
       document.cookie = "token=" + result.token + "; path=/";
-      console.log("response send", result);
+      localStorage.setItem('login',userData.email)
+   //   console.log("response send", result);
 
-      alert("Signup successful");
-      navigate("/login");
+
+   window.dispatchEvent(new Event('localStorage-change'));
+      alert("sign Up successful");
+        navigate("/");
+
+
+
   }else{
-      alert("Signup failed");
+      alert("Login failed");
   }
 }
 

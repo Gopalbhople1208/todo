@@ -1,10 +1,52 @@
-import {Link} from 'react-router-dom';
+import {Link,useNavigate} from 'react-router-dom';
 import '../style/AddTask.css';
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 function Login(){
 
-    const [userData,setTaskData] = useState();
+    const [userData,setTaskData] = useState({email:"",password:""});
+
+    const navigate = useNavigate();
+
+
+
+useEffect(()=>{
+    if(localStorage.getItem('login')){
+        navigate('/')
+    }
+})
+const handLogin = async () => {
+
+  console.log("user data sending.....",userData);
+
+  let response = await fetch('http://localhost:3232/login',{
+      method:"POST",
+      headers:{
+          'Content-Type':'application/json'
+      },
+      body: JSON.stringify(userData)
+  });
+
+  let result = await response.json();
+
+  if(result.success){
+      document.cookie = "token=" + result.token + "; path=/";
+      localStorage.setItem('login',userData.email)
+   //   console.log("response send", result);
+
+
+   window.dispatchEvent(new Event('localStorage-change'))
+      alert("Login successful");
+        navigate("/");
+
+
+
+  }else{
+      alert("Login failed");
+  }
+}
+
+
 
     return(
         <div className="container">
@@ -17,10 +59,10 @@ function Login(){
         
             <input
              onChange={(event)=>setTaskData({...userData,password:event.target.value})}
-            type="text" placeholder="Enter Password"></input>
+            type="password" placeholder="Enter Password"></input>
             <br></br>
             <button 
-             onClick={()=>console.log(userData)}
+             onClick={handLogin}
             type="submit">Login</button>
            
            <Link className="link" to="/signup" >Sign Up</Link>
