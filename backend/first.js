@@ -27,7 +27,7 @@ app.use(cors());
 
 //----login route---
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -83,7 +83,7 @@ app.post("/login", async (req, res) => {
 
 
 // --- Signup route ---
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!email || !password)
@@ -125,7 +125,7 @@ app.post("/signup", async (req, res) => {
 //   });
 // });
 
-app.post("/add-task", async (req, res) => {
+app.post("/api/add-task", async (req, res) => {
   try {
     const { title, description } = req.body;
     if (!title || !description) {
@@ -149,7 +149,7 @@ app.post("/add-task", async (req, res) => {
 });
 
 
-app.get("/", async (req, resp) => {
+app.get("/api/tasks", async (req, resp) => {
   const db = await connection();
   const collection = db.collection(collectionName);
 
@@ -163,7 +163,7 @@ app.get("/", async (req, resp) => {
     data: result,
   });
 });
-app.delete("/deleteTask/:id", async (req, resp) => {
+app.delete("/api/deleteTask/:id", async (req, resp) => {
   try {
     const db = await connection();
     const collection = db.collection(collectionName);
@@ -183,7 +183,7 @@ app.delete("/deleteTask/:id", async (req, resp) => {
   }
 });
 
-app.get("/task/:id", async (req, resp) => {
+app.get("/api/task/:id", async (req, resp) => {
   const db = await connection();
   const collection = db.collection(collectionName);
 
@@ -197,7 +197,7 @@ app.get("/task/:id", async (req, resp) => {
   });
 });
 
-app.put("/updateTask/:id", async (req, resp) => {
+app.put("/api/updateTask/:id", async (req, resp) => {
   try {
     const db = await connection();
     const collection = db.collection(collectionName);
@@ -279,6 +279,9 @@ app.put("/updateTask/:id", async (req, resp) => {
 
 //  });
 
-app.listen(3232, () => {
-  console.log("Server running at http://localhost:3232");
-});
+// app.listen(3232, () => {
+//   console.log("Server running at http://localhost:3232");
+// });
+
+
+export default app;
