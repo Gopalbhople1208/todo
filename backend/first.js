@@ -410,12 +410,12 @@
 
 
 
-
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+
 import { OAuth2Client } from "google-auth-library";
-import { connection, collectionName } from "./dbconfig.js";
+import { connection } from "./dbconfig.js";
 import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -425,13 +425,23 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+const collectionName = "tasks";
+
+
+// app.use(
+//   cors({
+//     origin: "*",
+//   })
+// );
+
+
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:5173",
+    credentials: true,
   })
 );
-
 const PORT = process.env.PORT || 3232;
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -441,10 +451,16 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 /* ---------------- GOOGLE LOGIN ---------------- */
-
 app.post("/google-login", async (req, res) => {
   try {
     const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Token missing",
+      });
+    }
 
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -452,7 +468,7 @@ app.post("/google-login", async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { email, name, sub: googleId } = payload;
+    const { email, name } = payload;
 
     const db = await connection();
     const usersCollection = db.collection("users");
@@ -460,29 +476,74 @@ app.post("/google-login", async (req, res) => {
     let user = await usersCollection.findOne({ email });
 
     if (!user) {
-      await usersCollection.insertOne({ name, email, googleId });
+      await usersCollection.insertOne({ name, email });
     }
-
-    const jwtToken = jwt.sign(
-      { email },
-      process.env.JWT_SECRET,
-      { expiresIn: "5d" }
-    );
 
     res.json({
       success: true,
-      name,
       email,
-      token: jwtToken,
+      name,
     });
-  } catch (err) {
-    console.error(err);
+
+  } catch (error) {
+    console.error("Google login error:", error);
     res.status(500).json({
       success: false,
       message: "Google login failed",
     });
   }
 });
+
+
+
+
+
+
+
+
+
+
+// app.post("/google-login", async (req, res) => {
+//   try {
+//     const { token } = req.body;
+
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: process.env.GOOGLE_CLIENT_ID,
+//     });
+
+//     const payload = ticket.getPayload();
+//     const { email, name, sub: googleId } = payload;
+
+//     const db = await connection();
+//     const usersCollection = db.collection("users");
+
+//     let user = await usersCollection.findOne({ email });
+
+//     if (!user) {
+//       await usersCollection.insertOne({ name, email, googleId });
+//     }
+
+//     const jwtToken = jwt.sign(
+//       { email },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "5d" }
+//     );
+
+//     res.json({
+//       success: true,
+//       name,
+//       email,
+//       token: jwtToken,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Google login failed",
+//     });
+//   }
+// });
 
 
 
@@ -537,17 +598,27 @@ app.post("/login", async (req, res) => {
 
 /* ---------------- SIGNUP ---------------- */
 
+
+
+
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
     const db = await connection();
     const usersCollection = db.collection("users");
 
-    const exist = await usersCollection.findOne({ email });
+    const existingUser = await usersCollection.findOne({ email });
 
-    if (exist) {
-      return res.json({
+    if (existingUser) {
+      return res.status(400).json({
         success: false,
         message: "User already exists",
       });
@@ -561,21 +632,65 @@ app.post("/signup", async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = jwt.sign(
-      { email, id: result.insertedId },
-      process.env.JWT_SECRET,
-      { expiresIn: "5d" }
-    );
-
     res.json({
       success: true,
-      token,
+      message: "Signup successful",
+      userId: result.insertedId,
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
+    console.error("Signup error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
+
+
+
+
+
+
+// app.post("/signup", async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+//     const db = await connection();
+//     const usersCollection = db.collection("users");
+
+//     const exist = await usersCollection.findOne({ email });
+
+//     if (exist) {
+//       return res.json({
+//         success: false,
+//         message: "User already exists",
+//       });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const result = await usersCollection.insertOne({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
+
+//     const token = jwt.sign(
+//       { email, id: result.insertedId },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "5d" }
+//     );
+
+//     res.json({
+//       success: true,
+//       token,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ success: false });
+//   }
+// });
 
 
 
@@ -585,26 +700,68 @@ app.post("/signup", async (req, res) => {
 
 app.post("/add-task", async (req, res) => {
   try {
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "Title and description required"
+      });
+    }
+
+
     const db = await connection();
     const collection = db.collection(collectionName);
 
-    const { title, description } = req.body;
+   // const collection = db.collection("tasks");
 
     const result = await collection.insertOne({
       title,
       description,
-      createdAt: new Date(),
+      createdAt: new Date()
     });
 
     res.json({
       success: true,
-      data: result,
+      message: "Task added",
+      data: result
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
+
+  } catch (error) {
+    console.error("Add Task error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
   }
 });
+
+
+
+
+// app.post("/add-task", async (req, res) => {
+//   try {
+//     const db = await connection();
+//     const collection = db.collection(collectionName);
+
+//     const { title, description } = req.body;
+
+//     const result = await collection.insertOne({
+//       title,
+//       description,
+//       createdAt: new Date(),
+//     });
+
+//     res.json({
+//       success: true,
+//       data: result,
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ success: false });
+//   }
+// });
 
 
 

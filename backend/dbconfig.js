@@ -1,5 +1,45 @@
 
 
+// // //  import { MongoClient } from "mongodb";
+
+// // //  const url = "mongodb://localhost:27017";
+ 
+
+// // //  const dbName = "node";
+
+// // //  export const collectionName = "tasks";
+
+// // //  const client = new MongoClient(url);
+
+// // //  export const connection = async () => {
+// // //    const connect = await client.connect();
+// // //    console.log("MongoDB connected successfully");
+// // //    return connect.db(dbName);
+// // //  };
+
+
+
+
+
+// // // import { MongoClient } from "mongodb";
+
+// // // // ✅ Works locally AND on Vercel
+// // // const url = process.env.MONGODB_URI || "mongodb://localhost:27017";
+// // // const dbName = "node";
+
+// // // export const collectionName = "tasks";
+
+// // // const client = new MongoClient(url);
+
+// // // export const connection = async () => {
+// // //   await client.connect();
+// // //   console.log("MongoDB connected successfully");
+// // //   return client.db(dbName);
+// // // };
+
+
+
+
 // //  import { MongoClient } from "mongodb";
 
 // //  const url = "mongodb://localhost:27017";
@@ -20,55 +60,40 @@
 
 
 
+// import { MongoClient } from "mongodb";
+// import dotenv from "dotenv";
 
-// // import { MongoClient } from "mongodb";
+// dotenv.config();
 
-// // // ✅ Works locally AND on Vercel
-// // const url = process.env.MONGODB_URI || "mongodb://localhost:27017";
-// // const dbName = "node";
+// const url = process.env.MONGO_URI;
+// const dbName = process.env.DB_NAME;
 
-// // export const collectionName = "tasks";
+// export const collectionName = "tasks";   // ✅ ADD THIS
 
-// // const client = new MongoClient(url);
+// let client;
 
-// // export const connection = async () => {
-// //   await client.connect();
-// //   console.log("MongoDB connected successfully");
-// //   return client.db(dbName);
-// // };
-
-
-
-
-//  import { MongoClient } from "mongodb";
-
-//  const url = "mongodb://localhost:27017";
- 
-
-//  const dbName = "node";
-
-//  export const collectionName = "tasks";
-
-//  const client = new MongoClient(url);
-
-//  export const connection = async () => {
-//    const connect = await client.connect();
-//    console.log("MongoDB connected successfully");
-//    return connect.db(dbName);
-//  };
-
-
+// export const connection = async () => {
+//   if (!client) {
+//     client = new MongoClient(url);
+//     await client.connect();
+//     console.log("MongoDB connected successfully");
+//   }
+//   return client.db(dbName);
+// };
 
 
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+
 
 dotenv.config();
 
 const url = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
 
-export const collectionName = "tasks";   // ✅ ADD THIS
+
+
+export const collectionName = "tasks";   // ✅ add this line
 
 let client;
 
