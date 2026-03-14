@@ -2,8 +2,7 @@
 
  import { MongoClient } from "mongodb";
 
- const url = process.env.MONGODB_URI || "mongodb://localhost:27017";
- //const url = "mongodb://localhost:27017";
+ const url = "mongodb://localhost:27017";
  
 
  const dbName = "node";

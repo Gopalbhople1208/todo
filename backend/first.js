@@ -1,5 +1,6 @@
 import express from "express";
-
+import 'dotenv/config';
+import { OAuth2Client } from 'google-auth-library';
 import { connection, collectionName } from "./dbconfig.js";
 import cors from "cors";
 import { ObjectId } from "mongodb";
@@ -15,9 +16,47 @@ app.use(cors());
 
 
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// --- Google Login Route ---
+app.post('/google-login', async (req, res) => {
+  const { token } = req.body;
 
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name;
+
+    const db = await connection();
+    const usersCollection = db.collection("users");
+
+    // Check if user exists
+    let user = await usersCollection.findOne({ email });
+
+    if (!user) {
+      // Create new user if not exists
+      const result = await usersCollection.insertOne({ name, email, password: "" });
+      user = { _id: result.insertedId, name, email };
+    }
+
+    // Issue JWT
+    const tokenJWT = jwt.sign(
+      { email: user.email, userId: user._id },
+      process.env.JWT_SECRET || "defaultsecret",
+      { expiresIn: "5d" }
+    );
+
+    res.json({ success: true, name: user.name, email: user.email, token: tokenJWT });
+  } catch (err) {
+    console.error("Google login error:", err);
+    res.status(401).json({ success: false, message: 'Invalid Google token' });
+  }
+});
 
 
 
@@ -27,7 +66,7 @@ app.use(cors());
 
 //----login route---
 
-app.post("/api/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -83,7 +122,7 @@ app.post("/api/login", async (req, res) => {
 
 
 // --- Signup route ---
-app.post("/api/signup", async (req, res) => {
+app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!email || !password)
@@ -125,7 +164,7 @@ app.post("/api/signup", async (req, res) => {
 //   });
 // });
 
-app.post("/api/add-task", async (req, res) => {
+app.post("/add-task", async (req, res) => {
   try {
     const { title, description } = req.body;
     if (!title || !description) {
@@ -149,7 +188,7 @@ app.post("/api/add-task", async (req, res) => {
 });
 
 
-app.get("/api/tasks", async (req, resp) => {
+app.get("/", async (req, resp) => {
   const db = await connection();
   const collection = db.collection(collectionName);
 
@@ -163,7 +202,7 @@ app.get("/api/tasks", async (req, resp) => {
     data: result,
   });
 });
-app.delete("/api/deleteTask/:id", async (req, resp) => {
+app.delete("/deleteTask/:id", async (req, resp) => {
   try {
     const db = await connection();
     const collection = db.collection(collectionName);
@@ -183,7 +222,7 @@ app.delete("/api/deleteTask/:id", async (req, resp) => {
   }
 });
 
-app.get("/api/task/:id", async (req, resp) => {
+app.get("/task/:id", async (req, resp) => {
   const db = await connection();
   const collection = db.collection(collectionName);
 
@@ -197,7 +236,7 @@ app.get("/api/task/:id", async (req, resp) => {
   });
 });
 
-app.put("/api/updateTask/:id", async (req, resp) => {
+app.put("/updateTask/:id", async (req, resp) => {
   try {
     const db = await connection();
     const collection = db.collection(collectionName);
@@ -279,9 +318,6 @@ app.put("/api/updateTask/:id", async (req, resp) => {
 
 //  });
 
-// app.listen(3232, () => {
-//   console.log("Server running at http://localhost:3232");
-// });
-
-
-export default app;
+app.listen(3232, () => {
+  console.log("Server running at http://localhost:3232");
+});
