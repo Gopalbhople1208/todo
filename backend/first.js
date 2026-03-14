@@ -16,51 +16,86 @@ app.use(cors());
 
 
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// --- Google Login Route ---
-app.post('/google-login', async (req, res) => {
-  const { token } = req.body;
+// // --- Google Login Route ---
+// app.post('/google-login', async (req, res) => {
+//   const { token } = req.body;
 
+//   try {
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: process.env.GOOGLE_CLIENT_ID,
+//     });
+
+//     const payload = ticket.getPayload();
+//     const email = payload.email;
+//     const name = payload.name;
+
+//     const db = await connection();
+//     const usersCollection = db.collection("users");
+
+//     // Check if user exists
+//     let user = await usersCollection.findOne({ email });
+
+//     if (!user) {
+//       // Create new user if not exists
+//       const result = await usersCollection.insertOne({ name, email, password: "" });
+//       user = { _id: result.insertedId, name, email };
+//     }
+
+//     // Issue JWT
+//     const tokenJWT = jwt.sign(
+//       { email: user.email, userId: user._id },
+//       process.env.JWT_SECRET || "defaultsecret",
+//       { expiresIn: "5d" }
+//     );
+
+//     res.json({ success: true, name: user.name, email: user.email, token: tokenJWT });
+//   } catch (err) {
+//     console.error("Google login error:", err);
+//     res.status(401).json({ success: false, message: 'Invalid Google token' });
+//   }
+// });
+
+
+
+
+
+
+
+
+const client = new OAuth2Client("577348361922-tqsr025ee745amsbjbp7cjrn43omfs3o.apps.googleusercontent.com");
+
+app.post("/google-login", async (req, res) => {
   try {
+    const { token } = req.body;
+
+    // Verify token with Google
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: "577348361922-tqsr025ee745amsbjbp7cjrn43omfs3o.apps.googleusercontent.com",
     });
 
     const payload = ticket.getPayload();
-    const email = payload.email;
-    const name = payload.name;
+    const { email, name, sub: googleId } = payload;
 
+    // Save user to DB if not exists
     const db = await connection();
     const usersCollection = db.collection("users");
 
-    // Check if user exists
     let user = await usersCollection.findOne({ email });
-
     if (!user) {
-      // Create new user if not exists
-      const result = await usersCollection.insertOne({ name, email, password: "" });
-      user = { _id: result.insertedId, name, email };
+      await usersCollection.insertOne({ name, email, googleId });
     }
 
-    // Issue JWT
-    const tokenJWT = jwt.sign(
-      { email: user.email, userId: user._id },
-      process.env.JWT_SECRET || "defaultsecret",
-      { expiresIn: "5d" }
-    );
+    return res.json({ success: true, email, name });
 
-    res.json({ success: true, name: user.name, email: user.email, token: tokenJWT });
   } catch (err) {
     console.error("Google login error:", err);
-    res.status(401).json({ success: false, message: 'Invalid Google token' });
+    return res.status(500).json({ success: false, message: "Google login failed" });
   }
 });
-
-
-
-
 
 
 
