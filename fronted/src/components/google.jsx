@@ -29,51 +29,65 @@
 
 
 
-
 // frontend/src/components/Google.jsx
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from "@react-oauth/google";
 
 function Google() {
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const token = tokenResponse.credential;
 
-  const handleSuccess = async (credentialResponse) => {
-    const token = credentialResponse.credential;
+      try {
+        const res = await fetch("http://localhost:3232/google-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
 
-    try {
-      const res = await fetch("http://localhost:3232/google-login", { // your backend URL
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-      });
+        const data = await res.json();
 
-      const data = await res.json();
-
-      if (data.success) {
-        localStorage.setItem("login", data.email);
-        alert(`Login Successful! Welcome ${data.name}`);
-        window.location.href = "/";
-      } else {
-        alert("Google login failed");
+        if (data.success) {
+          localStorage.setItem("login", data.email);
+          alert(`Login Successful! Welcome ${data.name}`);
+          window.location.href = "/";
+        } else {
+          alert("Google login failed");
+        }
+      } catch (err) {
+        console.error("Google login error:", err);
+        alert("Google login failed, check console");
       }
-    } catch (err) {
-      console.error("Google login error:", err);
-      alert("Google login failed, check console");
-    }
-  };
-
-  const handleError = () => {
-    alert('Login Failed');
-    console.log('Login Failed');
-  };
+    },
+    onError: () => {
+      alert("Login Failed");
+    },
+  });
 
   return (
-
-
-
-    
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={handleError}
-    />
+    <button
+      onClick={() => login()}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "5px 10px ",
+        width: "100%",
+        backgroundColor: "#fff",
+        border: "1px solid #ddd",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontWeight: "bold",
+        color:"black"
+      }}
+    >
+      <img
+        src="https://imgs.search.brave.com/4MBvClgfV5NmkmIofX1ubWajKvxAW1UEqTXj3cvUcMs/rs:fit:0:180:1:0/g:ce/aHR0cHM6Ly93d3cu/a2V5d2VvLmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyMS8w/OS9EaXNlbm8tc2lu/LXRpdHVsby05LnBu/Zw"
+        alt="Google"
+        style={{ width: "45px" }}
+      />
+      Sign in with Google
+    </button>
   );
 }
 
