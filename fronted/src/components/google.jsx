@@ -190,13 +190,43 @@ function Google() {
         const decoded = jwtDecode(token);
 
         try {
-          const res = await fetch("/api/google-login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token }),
-          });
 
-          const data = await res.json();
+
+
+          const res = await fetch("http://localhost:3232/google-login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ token }),
+});
+
+const data = await res.json();   // ✅ important
+console.log(data);
+
+
+//           const handleSuccess = async (response) => {
+//   const token = response.credential;
+
+//   const res = await fetch("http://localhost:3232/google-login", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ token }),
+//   });
+
+//   const data = await res.json();
+//   console.log(data);
+// };
+
+          //const res = await fetch("http://localhost:3232/google-login", {
+          //   method: "POST",
+          //   headers: { "Content-Type": "application/json" },
+          //   body: JSON.stringify({ token }),
+          // });
+
+          // const data = await res.json();
 
           if (data.success) {
             localStorage.setItem("login", data.email);
