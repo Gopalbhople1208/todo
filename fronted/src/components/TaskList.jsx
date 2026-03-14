@@ -11,7 +11,7 @@ function TaskList() {
   }, []);
 
   const getListData = async () => {
-    let list = await fetch("http://localhost:3232");
+    let list = await fetch("/api/tasks");
     list = await list.json();
 
     console.log(list);
@@ -26,7 +26,7 @@ function TaskList() {
 
    const deleteTask = async (id) => {
     try{
-    let item = await fetch(`http://localhost:3232/deleteTask/${id}`, { method: "DELETE" });
+    let item = await fetch(`/api/deleteTask/${id}`, { method: "DELETE" });
     item = await item.json();
 
    
