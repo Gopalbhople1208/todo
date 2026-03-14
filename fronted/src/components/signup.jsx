@@ -21,7 +21,7 @@ const handSignUp = async () => {
 
   console.log("user data sending.....",userData);
 
-  let response = await fetch('http://localhost:3232/signup',{
+  let response = await fetch('/api/signup',{
       method:"POST",
       headers:{
           'Content-Type':'application/json'
